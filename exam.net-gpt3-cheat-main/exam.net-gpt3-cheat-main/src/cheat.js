@@ -34,17 +34,20 @@ var string = "";
 var response_string = "";
 var old_title = document.title;
 
+// Replace 'YOUR_API_KEY' with your actual API key from your GPT premium account
+var apiKey = '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';
+
 function make_request(input) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "https://api.openai.com/v1/completions");
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("Authorization", "Bearer " + token)
+    xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
     var requestData = {
-        "model": "text-davinci-003",
+        "model": "gpt-4",  // Use GPT-4 model
         "prompt": input,
         "max_tokens": 100,
         "temperature": 0
-    }
+    };
     var requestBody = JSON.stringify(requestData);
     xhr.send(requestBody);
     xhr.onload = function() {
@@ -65,7 +68,7 @@ function make_request(input) {
 
 
 function KeyPress(e) {
-    var evtobj = window.event? event : e
+    var evtobj = window.event? event : e;
     // ctrl + shift
     if (!kill && evtobj.keyCode == 16 && evtobj.ctrlKey) {
         // start
@@ -76,14 +79,13 @@ function KeyPress(e) {
     if (evtobj.keyCode == 18 && evtobj.ctrlKey) {
         // stop
         running = false;
-        //string = "";
-        //alert(string);
+        // Send request if string is not empty
         if (string.length > 1) {
             make_request(string);
-            // clear string when request is done
+            // clear string after request is done
             string = "";
         }
-        // change back the title
+        // restore original title
         document.title = old_title;
     }
 
@@ -91,46 +93,33 @@ function KeyPress(e) {
     if (evtobj.keyCode == 8 && string.length != 0) {
         string = string.slice(0, -1);
     }
-
 }
 
 document.onkeydown = KeyPress;
 
-//window.addEventListener('click', (e) => e.target.value = e.target.value + response_string);
 window.onclick = e => {
-    //e.target.innerText = e.target.innerText + "aaa";
+    // Handle the response in input or textarea elements
     console.log(e.target.tagName);
-    // for regular input elements
-    if (e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA" && response_string != "") {
+    if ((e.target.tagName == "INPUT" || e.target.tagName == "TEXTAREA") && response_string != "") {
         e.target.value = e.target.value + response_string;
-    }
-    // for input elements on exam.net
-    else if (response_string != "") {
+    } else if (response_string != "") {
         e.target.childNodes[0].innerText = e.target.childNodes[0].innerText + response_string;
         console.log(e.target.childNodes[0].innerText);
     }
-
 }
-
 
 document.addEventListener("keydown", function(event) {
     // ⬞ in tab title means it's recording keys
-
     if (running) {
-
         if (let_num.includes(event.key)) {
             string += event.key;
         }
         if (string.length != 0 && !kill) {
             document.title = "⬞" + string;
-        }
-        else if (!kill) {
+        } else if (!kill) {
             document.title = "⬞" + old_title;
-        }
-        else {
+        } else {
             document.title = old_title;
         }
-        
     }
-    }
-);
+});
